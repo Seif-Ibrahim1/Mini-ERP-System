@@ -13,13 +13,20 @@ class Customer(models.Model):
     def __str__(self):
         return f"{self.code} - {self.name}"
 
+class Sequence(models.Model):
+    key = models.CharField(max_length=50, unique=True) 
+    last_number = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.key}: {self.last_number}"
+
 class SalesOrder(models.Model):
     class Status(models.TextChoices):
         PENDING = 'PENDING', 'Pending'
         CONFIRMED = 'CONFIRMED', 'Confirmed'
         CANCELLED = 'CANCELLED', 'Cancelled'
 
-    # I may change this to sequence later if I had enough time
+    # made it to sequence as I had time
     order_number = models.CharField(max_length=20, unique=True, editable=False)
     
     customer = models.ForeignKey(Customer, on_delete=models.PROTECT, related_name='orders')
