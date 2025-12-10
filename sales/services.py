@@ -53,3 +53,16 @@ def confirm_order(order: SalesOrder, user):
     order.save()
     
     return order
+
+@transaction.atomic
+def cancel_order(order: SalesOrder, user):
+    if order.status == SalesOrder.Status.CANCELLED:
+        raise ValidationError("order is already cancelled.")
+
+    if order.status == SalesOrder.Status.CONFIRMED:
+        for item in order.items.all():
+            adjust_stock( product=item.product, qty=item.qty, user=user, note=f"Cancelled Order {order.order_number}")
+
+    order.status = SalesOrder.Status.CANCELLED
+    order.save()
+    return order
