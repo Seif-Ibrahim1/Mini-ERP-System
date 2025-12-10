@@ -59,3 +59,9 @@ class SalesOrderCreateSerializer(serializers.ModelSerializer):
         customer = validated_data['customer']
         
         return create_order(user=user, customer=customer, items_data=items_data)
+    
+class DashboardSerializer(serializers.Serializer):
+    total_customers = serializers.IntegerField()
+    today_sales_revenue = serializers.DecimalField(max_digits=12, decimal_places=2)
+    low_stock_alert = serializers.IntegerField()
+    generated_at = serializers.DateTimeField()

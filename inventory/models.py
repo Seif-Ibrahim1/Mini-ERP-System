@@ -12,6 +12,8 @@ class Product(models.Model):
     
     stock_qty = models.IntegerField(default=0)
 
+    image = models.ImageField(upload_to='products/', blank=True, null=True)
+
     class Meta:
         constraints = [
             CheckConstraint(condition=Q(stock_qty__gte=0), name='stock_non_negative')

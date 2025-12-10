@@ -3,6 +3,8 @@ from django.utils import timezone
 from django.core.exceptions import ValidationError
 from .models import SalesOrder, SalesOrderItem, Sequence
 from inventory.services import adjust_stock
+import openpyxl
+from django.http import HttpResponse
 
 def get_next_order_number():
     #SO-00001
@@ -66,3 +68,25 @@ def cancel_order(order: SalesOrder, user):
     order.status = SalesOrder.Status.CANCELLED
     order.save()
     return order
+
+def generate_sales_excel():
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Sales Report"
+    headers = ["Order Number", "Customer", "Date", "Status", "Total Amount", "Created By"]
+    ws.append(headers)
+    orders = SalesOrder.objects.select_related('customer', 'created_by').all().iterator()
+    for order in orders:
+        ws.append([
+            order.order_number,
+            order.customer.name,
+            order.order_date,
+            order.status,
+            order.total_amount,
+            order.created_by.username
+        ])
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="sales_report.xlsx"'
+    wb.save(response)
+    return response

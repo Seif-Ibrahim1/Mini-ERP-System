@@ -8,6 +8,12 @@ class User(AbstractUser):
 
     role = models.CharField(max_length=20, choices=Roles.choices, default=Roles.SALES)
 
+    def save(self, *args, **kwargs):
+        if self.is_superuser:
+            self.role = self.Roles.ADMIN
+        
+        super().save(*args, **kwargs)
+
     @property
     def is_admin(self):
         return self.role == self.Roles.ADMIN
